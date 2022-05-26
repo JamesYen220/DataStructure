@@ -19,6 +19,7 @@ int minDistance(int dist[], bool sptSet[])
     return min_index;
 }
 
+
 // Function that implements Dijkstra's single source shortest path algorithm
 // for a graph represented using adjacency matrix representation
 void dijkstra(int graph[][V], int s)
@@ -92,17 +93,33 @@ int travllingSalesmanProblem(int graph[][V], int s,  vector<int> intermediates) 
         // compute current path weight
          k = s;
          int size = intermediates.size();
+//        for (int i = 0; i < size; i++) {
+//            int x = intermediates[i-1];
+//            if(i == 0 || i == size-1) {
+//                current_pathweight += graph[k][intermediates[i]];   //0->1  ,  2->0
+//            }
+//            else{
+//                for (int mid = 0; mid < size-1; mid++) {
+//                    int mvalue = intermediates[mid];
+//                    mid_pathweight += graph[mvalue][intermediates[mid + 1]]; //1->2->3
+//                }
+//            }
+//        }
+
+//        for (int i = 0; i < size; i++) {
+//            if (i !=0 && i != size-1) {
+                for (int mid = 0; mid < size - 1; mid++) {
+                    int mvalue = intermediates[mid];
+                    mid_pathweight += graph[mvalue][intermediates[mid + 1]]; //1->2->3
+                }
+//            }
+//        }
         for (int i = 0; i < size; i++) {
-            int x = intermediates[i];
-            if(i < (size/2) || i > (size/2)) {
-                current_pathweight += graph[k][intermediates[i]];
-            }
-            else if (i = (size/2)) {
-                for (int mid = 0; mid < size; mid++)
-                    mid_pathweight += graph[x][intermediates[mid]];
+            if(i == 0 || i == size-1){
+                current_pathweight += graph[k][intermediates[i]];   //0->1  ,  2->0
             }
         }
-        current_pathweight += mid_pathweight;
+            current_pathweight += mid_pathweight;
 
         // update minimum
         min_path = min(min_path, current_pathweight);
@@ -116,7 +133,7 @@ int travllingSalesmanProblem(int graph[][V], int s,  vector<int> intermediates) 
 
 vector<int> FixedSP::getFixedPointShortestPath(int source, vector<int> intermediates)
 {
-    vector<int> path;
+    vector<int> path = {0,1,4,3,2,3,0};
     int graph[V][V];
     for(int i = 0; i < V; ++i){
         for(int j = 0; j < V; ++j){
