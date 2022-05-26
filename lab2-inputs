@@ -1,0 +1,162 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>    // std::next_permutation, std::sort
+using namespace std;
+#define V 10
+#define INF 1e8
+
+
+int minDistance(int dist[], bool sptSet[])
+{
+
+    // Initialize min value
+    int min = INF, min_index;
+
+    for (int v = 0; v < V; v++)
+        if (sptSet[v] == false && dist[v] <= min)
+            min = dist[v], min_index = v;
+
+    return min_index;
+}
+
+// Function that implements Dijkstra's single source shortest path algorithm
+// for a graph represented using adjacency matrix representation
+void dijkstra(int graph[][V], int s)
+{
+    //still has error loading the correct array
+    for(int i = 0; i < V; ++i){
+        for(int j = 0; j < V; ++j){
+            graph[s][j] = graph[j][s];
+        }
+    }
+    int dist[V]; // The output array.  dist[i] will hold the shor       test
+    // distance from src to i
+
+    bool sptSet[V]; // sptSet[i] will be true if vertex i is included in shortest
+    // path tree or shortest distance from src to i is finalized
+
+    // Initialize all distances as INFINITE and stpSet[] as false
+    for (int i = 0; i < V; i++)
+        dist[i] = INF, sptSet[i] = false;
+
+
+    // Distance of source vertex from itself is always 0
+    dist[s] = 0;
+
+    // Find shortest path for all vertices
+    for (int count = 0; count < V - 1; count++) {
+        // Pick the minimum distance vertex from the set of vertices not
+        // yet processed. u is always equal to src in the first iteration.
+        int u = minDistance(dist, sptSet);
+
+        // Mark the picked vertex as processed
+        sptSet[u] = true;
+
+        // Update dist value of the adjacent vertices of the picked vertex.
+        for (int v = 0; v < V; v++)
+
+            // Update dist[v] only if is not in sptSet, there is an edge from
+            // u to v, and total weight of path from src to  v through u is
+            // smaller than current value of dist[v]
+            if (!sptSet[v] && graph[u][v] && dist[u] != INF && dist[u] + graph[u][v] < dist[v])
+                dist[v] = dist[u] + graph[u][v];
+    }
+    for (int i=0; i<=V; i++){
+        graph[s][i] = dist[i];
+    }
+}
+
+// implementation of traveling Salesman Problem
+int travllingSalesmanProblem(int graph[][V], int s,  vector<int> intermediates) {
+    // store all vertex apart from source vertex
+    vector<int> vertex;
+    int m = intermediates.size();
+    for (int i = 0; i <= V; i++)
+        if (i != s)
+            vertex.push_back(i);
+
+    int k=s;
+    //The shortest distance between the source node and the must-pass node
+    for(int i=0; i<=intermediates.size(); i++) {
+        dijkstra(graph, k);
+        k=intermediates[i];
+    }
+
+
+    // store minimum weight Hamiltonian Cycle.
+    int min_path = INF;
+    do {
+
+        // store current Path weight(cost)
+        int current_pathweight = 0;
+        int mid_pathweight = 0;
+        // compute current path weight
+        k = s;
+        int size = intermediates.size();
+//        for (int i = 0; i < size; i++) {
+//            if (i !=0 && i != size-1) {
+                for (int mid = 0; mid < size - 1; mid++) {
+                    int mvalue = intermediates[mid];
+                    mid_pathweight += graph[mvalue][intermediates[mid + 1]]; //1->2->3
+                }
+//            }
+//        }
+        for (int i = 0; i < size; i++) {
+            if(i == 0 || i == size-1){
+                current_pathweight += graph[k][intermediates[i]];   //0->1  ,  2->0
+            }
+        }
+        current_pathweight += mid_pathweight;
+
+        // update minimum
+        min_path = min(min_path, current_pathweight);
+
+    } while (
+            next_permutation(intermediates.begin(), intermediates.end()));
+
+    return min_path;
+}
+
+int main()
+{
+    int graph[V][V] = { {0 ,135, 522, 139, 417, 227, 306, 595, 833, 557},
+                        {135,0, 582 ,917, 559, 493 ,910 ,314 ,447, 431},
+                        {522,582,0 ,846, 347, 431, 673, 822, 270, 255},
+                        {139,917,846, 0 ,149, 932 ,643 ,520, 180 ,322},
+                        {417,559,347, 149, 0, 691 ,867 ,924, 622 ,345},
+                        {227,493,431, 932, 691 ,0 ,875 ,941, 428 ,466},
+                        {306,910,673, 643, 867 ,875, 0, 938, 731, 125},
+                        {595,314,822, 520, 924 ,941, 938, 0, 335, 569},
+                        {833,447,270, 180, 622 ,428, 731, 335, 0, 658},
+                        {557,431,255, 322, 345 ,466, 125, 569, 658 ,0}};
+    int s = 7;
+    vector<int> intermediates = {0,4,1,6};
+    cout << travllingSalesmanProblem(graph, s, intermediates) << endl;
+    s = 3;
+    intermediates = {7,9,6,8,2,4};
+    cout << travllingSalesmanProblem(graph, s, intermediates) << endl;
+    s = 3;
+    intermediates = {4,8,9,2,7};
+    cout << travllingSalesmanProblem(graph, s, intermediates) << endl;
+    s = 8;
+    intermediates = {2,4,5,0,7,1};
+    cout << travllingSalesmanProblem(graph, s, intermediates) << endl;
+    s = 6;
+    intermediates = {8,7,3};
+    cout << travllingSalesmanProblem(graph, s, intermediates) << endl;
+    s = 9;
+    intermediates = {2,0,3,4,5};
+    cout << travllingSalesmanProblem(graph, s, intermediates) << endl;
+    s = 8;
+    intermediates = {5,9,7,6,3};
+    cout << travllingSalesmanProblem(graph, s, intermediates) << endl;
+    s = 2;
+    intermediates = {6,5,9,8,4,3};
+    cout << travllingSalesmanProblem(graph, s, intermediates) << endl;
+
+//    cout<<intermediates.size()<<endl;
+//    cout<<spmatrix.size()<<endl;
+    // TODO
+
+    return 0;
+}
